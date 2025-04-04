@@ -1,4 +1,4 @@
-import {Categories, Container, SortPopup, Title, TopBar} from "@/components/shared";
+import {Categories, Container, Filters, SortPopup, Title, TopBar} from "../components/shared";
 
 
 export default function Home() {
@@ -9,7 +9,19 @@ export default function Home() {
             </Container>
             <TopBar/>
 
-            <div style={{height: '3000px'}}></div>
+            <Container className={"mt-10 pb-14"}>
+                <div className={"flex gap-[60px]"}>
+                    <div className={"w-[250px]"}>
+                        <Filters/>
+                    </div>
+
+                    <div className={"flex-1"}>
+                        <div  className={"flex flex-col gap-16"}>
+                            список товаров
+                        </div>
+                    </div>
+                </div>
+            </Container>
         </>
     );
 }
