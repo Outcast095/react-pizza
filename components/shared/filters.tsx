@@ -29,6 +29,8 @@ export const Filters: React.FC<Props> = ({className}) => {
 
                 <RangeSlider min={0} max={1000} step={10} value={[0, 5000]} />
 
+
+
                 <CheckboxFiltersGroup
                     className="mt-5"
                     title="Формат"
