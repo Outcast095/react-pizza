@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from 'react';
 import { Checkbox } from '../ui/checkbox';
 
-export interface FilterChecboxProps {
+export interface  FilterChecboxProps {
     text: string;
     value: string;
     endAdornment?: React.ReactNode;
