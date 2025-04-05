@@ -25,7 +25,86 @@ export default function Home() {
                                     imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
                                     price: 550,
                                     items: [{price: 550}]
-                                }
+                                },
+                                {
+                                    id: 2,
+                                    name: "Чизбургер пицца",
+                                    imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
+                                    price: 550,
+                                    items: [{price: 550}]
+                                },
+                                {
+                                    id: 3,
+                                    name: "Чизбургер пицца",
+                                    imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
+                                    price: 550,
+                                    items: [{price: 550}]
+                                },
+                                {
+                                    id: 4,
+                                    name: "Чизбургер пицца",
+                                    imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
+                                    price: 550,
+                                    items: [{price: 550}]
+                                },
+                                {
+                                    id: 5,
+                                    name: "Чизбургер пицца",
+                                    imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
+                                    price: 550,
+                                    items: [{price: 550}]
+                                },
+                                {
+                                    id: 6,
+                                    name: "Чизбургер пицца",
+                                    imageUrl: "https://media.dodostatic.net/image/r:584x584/019591a2e222794a81731c99f3cc34ec.avif",
+                                    price: 550,
+                                    items: [{price: 550}]
+                                },
+                            ]}/>
+                            <ProductsGroupList categoryId={2} title={"Закуски"} items={[
+                                {
+                                    id: 1,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
+                                {
+                                    id: 2,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
+                                {
+                                    id: 3,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
+                                {
+                                    id: 4,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
+                                {
+                                    id: 5,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
+                                {
+                                    id: 6,
+                                    name: "Додстер",
+                                    imageUrl: "https://media.dodostatic.net/image/r:760x760/019591cc0d0971eaa6f4f81bde8983fb.avif",
+                                    price: 150,
+                                    items: [{price: 150}]
+                                },
                             ]}/>
                         </div>
                     </div>
