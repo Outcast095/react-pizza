@@ -1,0 +1,313 @@
+// Это ваш файл схемы Prisma,
+// подробнее о нём в документации: https://pris.ly/d/prisma-schema
+
+// Генератор клиента Prisma для создания JS-клиента
+generator client {
+  provider = "prisma-client-js" // Указывает, что будет использоваться Prisma Client на JavaScript
+}
+
+// Источник данных - подключение к базе данных
+datasource db {
+  provider = "postgresql"      // Используется PostgreSQL как СУБД
+  url      = env("DATABASE_URL") // URL подключения берется из переменной окружения
+}
+
+// Модель пользователя
+model User {
+  id       Int    @id @default(autoincrement()) // Уникальный идентификатор пользователя, автоматически увеличивается
+  fullName String                         // Полное имя пользователя
+  phone    String @unique                 // Номер телефона, уникален для каждого пользователя
+
+  role         UserRole          @default(USER) // Роль пользователя (по умолчанию USER), ссылается на перечисление UserRole
+  orders       Order[]                       // Список заказов пользователя (связь один-ко-многим)
+  cartItems    CartItem[]                   // Список элементов корзины пользователя (связь один-ко-многим)
+  cart         Cart?                        // Корзина пользователя (связь один-к-одному, опционально)
+  verification VerificationCode?            // Код верификации пользователя (связь один-к-одному, опционально)
+
+  phoneVerified DateTime?                   // Дата и время верификации телефона (может быть null)
+  createdAt     DateTime  @default(now())   // Дата создания записи (по умолчанию текущее время)
+}
+
+// Модель продукта (например, категория пицц)
+model Product {
+  id       Int     @id @default(autoincrement()) // Уникальный идентификатор продукта
+  name     String                         // Название продукта (например, "Классическая пицца")
+  imageUrl String                         // URL изображения продукта
+  active   Boolean @default(false)         // Статус активности продукта (по умолчанию выключен)
+
+  pizzas Pizza[]                          // Список пицц, относящихся к этому продукту (связь один-ко-многим)
+
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+}
+
+// Модель конкретной пиццы
+model Pizza {
+  id Int @id @default(autoincrement())    // Уникальный идентификатор пиццы
+
+  price    Int                            // Цена пиццы
+  size     Int                            // Размер пиццы (например, 30 для 30 см)
+  type     Int                            // Тип теста (например, 1 = тонкое, 2 = толстое)
+  carbs    Int                            // Количество углеводов в граммах
+  fats     Int                            // Количество жиров в граммах
+  kcal     Int                            // Калорийность в килокалориях
+  proteins Int                            // Количество белков в граммах
+  weight   Int                            // Вес пиццы в граммах
+
+  ingredients Ingredient[]                 // Список ингредиентов пиццы (связь многие-ко-многим)
+  cartItems   CartItem[]                  // Список элементов корзины, где используется эта пицца (связь один-ко-многим)
+
+  productId Int                           // Внешний ключ для связи с продуктом
+  product   Product @relation(fields: [productId], references: [id]) // Связь с моделью Product (многие-ко-одному)
+
+  active    Boolean  @default(false)      // Статус активности пиццы (по умолчанию выключена)
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+}
+
+// Модель ингредиента
+model Ingredient {
+  id       Int    @id @default(autoincrement()) // Уникальный идентификатор ингредиента
+  name     String                         // Название ингредиента (например, "Сыр")
+  price    Int                            // Цена ингредиента
+  imageUrl String                         // URL изображения ингредиента
+
+  pizzas    Pizza[]                       // Список пицц, где используется ингредиент (связь многие-ко-многим)
+  cartItems CartItem[]                    // Список элементов корзины, где используется ингредиент (связь многие-ко-многим)
+
+  createdAt DateTime @default(now())      // Дата создания записи
+}
+
+// Модель корзины пользователя
+model Cart {
+  id Int @id @default(autoincrement())    // Уникальный идентификатор корзины
+
+  userId Int  @unique                     // Внешний ключ для связи с пользователем (уникален, так как у пользователя только одна корзина)
+  user   User @relation(fields: [userId], references: [id]) // Связь с моделью User (один-к-одному)
+
+  totalAmount Int @default(0)             // Общая сумма товаров в корзине (по умолчанию 0)
+
+  items  CartItem[]                       // Список элементов корзины (связь один-ко-многим)
+  orders Order[]                          // Список заказов, созданных из этой корзины (связь один-ко-многим)
+
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+}
+
+// Модель элемента корзины
+model CartItem {
+  id Int @id @default(autoincrement())    // Уникальный идентификатор элемента корзины
+
+  pizzaId Int                             // Внешний ключ для связи с пиццей
+  pizza   Pizza @relation(fields: [pizzaId], references: [id]) // Связь с моделью Pizza (многие-ко-одному)
+
+  cartId Int                              // Внешний ключ для связи с корзиной
+  cart   Cart @relation(fields: [cartId], references: [id]) // Связь с моделью Cart (многие-ко-одному)
+
+  userId Int                              // Внешний ключ для связи с пользователем
+  user   User @relation(fields: [userId], references: [id]) // Связь с моделью User (многие-ко-одному)
+
+  ingredients Ingredient[]                 // Список дополнительных ингредиентов в элементе (связь многие-ко-многим)
+
+  quantity Int                            // Количество пицц в этом элементе
+
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+}
+
+// Модель заказа
+model Order {
+  id Int @id @default(autoincrement())    // Уникальный идентификатор заказа
+
+  userId Int                              // Внешний ключ для связи с пользователем
+  user   User @relation(fields: [userId], references: [id]) // Связь с моделью User (многие-ко-одному)
+
+  cartId Int                              // Внешний ключ для связи с корзиной
+  cart   Cart @relation(fields: [cartId], references: [id]) // Связь с моделью Cart (многие-ко-одному)
+
+  status      OrderStatus @default(PENDING) // Статус заказа (по умолчанию PENDING), ссылается на перечисление OrderStatus
+  totalAmount Int                         // Общая сумма заказа
+  paymentId   String?                     // ID платежа (опционально, может быть null)
+
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+}
+
+// Модель кода верификации
+model VerificationCode {
+  id Int @id @default(autoincrement())    // Уникальный идентификатор кода верификации
+
+  userId Int  @unique                     // Внешний ключ для связи с пользователем (уникален, так как у пользователя один код)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade) // Связь с моделью User (один-к-одному, удаляется при удалении пользователя)
+
+  code String                             // Код верификации (например, "123456")
+
+  expiresAt DateTime @default(now())      // Дата и время истечения срока действия кода (по умолчанию текущее время)
+  createdAt DateTime @default(now())      // Дата создания записи
+  updatedAt DateTime @updatedAt           // Дата последнего обновления записи
+
+  @@unique([userId, code])                // Уникальная комбинация пользователя и кода (чтобы избежать дублирования)
+}
+
+// Перечисление статусов заказа
+enum OrderStatus {
+  PENDING    // Заказ в ожидании
+  SUCCEEDED  // Заказ успешно выполнен
+  CANCELLED  // Заказ отменён
+}
+
+// Перечисление ролей пользователя
+enum UserRole {
+  USER   // Обычный пользователь
+  ADMIN  // Администратор
+}
+
+/*
+1. Модель User (Пользователь)
+Связи:
+orders Order[]
+Тип: Один-ко-многим
+Описание: Один пользователь может иметь много заказов.
+Реализация: В модели User определено поле orders Order[], а в модели Order есть обратная связь через userId и user User @relation(fields: [userId], references: [id]).
+Контекст: Пользователь может сделать несколько заказов пиццы, и все они будут связаны с его профилем.
+cartItems CartItem[]
+Тип: Один-ко-многим
+Описание: Один пользователь может иметь много элементов корзины.
+Реализация: В User определено cartItems CartItem[], а в CartItem есть userId и user User @relation(fields: [userId], references: [id]).
+Контекст: Пользователь добавляет пиццы в корзину, и все элементы корзины связаны с ним напрямую.
+cart Cart?
+Тип: Один-к-одному (опционально)
+Описание: У пользователя может быть одна корзина (или её может не быть).
+Реализация: В User определено cart Cart? (знак ? указывает на опциональность), а в Cart есть userId Int @unique и user User @relation(fields: [userId], references: [id]). Уникальность userId в Cart гарантирует, что у пользователя не более одной корзины.
+Контекст: У каждого пользователя есть одна активная корзина для хранения выбранных пицц.
+verification VerificationCode?
+Тип: Один-к-одному (опционально)
+Описание: У пользователя может быть один код верификации (или его может не быть).
+Реализация: В User определено verification VerificationCode?, а в VerificationCode есть userId Int @unique и user User @relation(fields: [userId], references: [id], onDelete: Cascade). Уникальность userId обеспечивает связь один-к-одному.
+Контекст: Код верификации используется для подтверждения номера телефона пользователя.
+
+
+
+2. Модель Product (Продукт)
+Связи:
+pizzas Pizza[]
+Тип: Один-ко-многим
+Описание: Один продукт (например, категория "Классические пиццы") может включать много конкретных пицц.
+Реализация: В Product определено pizzas Pizza[], а в Pizza есть productId Int и product Product @relation(fields: [productId], references: [id]).
+Контекст: Это группировка: например, "Маргарита" как продукт может иметь варианты (30 см, 40 см), которые являются записями в Pizza.
+3. Модель Pizza (Пицца)
+Связи:
+ingredients Ingredient[]
+Тип: Многие-ко-многим
+Описание: Одна пицца может содержать много ингредиентов, и один ингредиент может быть в составе многих пицц.
+Реализация: В Pizza определено ingredients Ingredient[], а в Ingredient — pizzas Pizza[]. Prisma автоматически создаёт промежуточную таблицу для этой связи (например, _IngredientToPizza).
+Контекст: Пицца "Пепперони" может включать сыр, колбасу и соус, а сыр может быть в других пиццах.
+cartItems CartItem[]
+Тип: Один-ко-многим
+Описание: Одна пицца может быть добавлена в множество элементов корзины.
+Реализация: В Pizza определено cartItems CartItem[], а в CartItem есть pizzaId Int и pizza Pizza @relation(fields: [pizzaId], references: [id]).
+Контекст: Пользователи могут добавлять одну и ту же пиццу в свои корзины несколько раз.
+product Product
+Тип: Многие-ко-одному
+Описание: Много пицц могут относиться к одному продукту.
+Реализация: В Pizza определено productId Int и product Product @relation(fields: [productId], references: [id]), а в Product — обратная связь pizzas Pizza[].
+Контекст: Все варианты "Маргариты" (например, 30 см и 40 см) связаны с одним продуктом "Маргарита".
+4. Модель Ingredient (Ингредиент)
+Связи:
+pizzas Pizza[]
+Тип: Многие-ко-многим
+Описание: Один ингредиент может быть в составе многих пицц, и одна пицца может содержать много ингредиентов.
+Реализация: В Ingredient определено pizzas Pizza[], а в Pizza — ingredients Ingredient[]. Это двусторонняя связь через промежуточную таблицу.
+Контекст: Ингредиент "Моцарелла" может быть в "Маргарите" и "Четырёх сырах".
+cartItems CartItem[]
+Тип: Многие-ко-многим
+Описание: Один ингредиент может быть добавлен в множество элементов корзины, и один элемент корзины может включать много ингредиентов.
+Реализация: В Ingredient определено cartItems CartItem[], а в CartItem — ingredients Ingredient[]. Связь через промежуточную таблицу.
+Контекст: Пользователь может добавить "Дополнительный сыр" к пицце в корзине.
+5. Модель Cart (Корзина)
+Связи:
+user User
+Тип: Один-к-одному
+Описание: Одна корзина принадлежит одному пользователю.
+Реализация: В Cart определено userId Int @unique и user User @relation(fields: [userId], references: [id]), а в User — cart Cart?. Уникальность userId обеспечивает связь один-к-одному.
+Контекст: У каждого пользователя есть только одна активная корзина.
+items CartItem[]
+Тип: Один-ко-многим
+Описание: Одна корзина может содержать много элементов.
+Реализация: В Cart определено items CartItem[], а в CartItem — cartId Int и cart Cart @relation(fields: [cartId], references: [id]).
+Контекст: Корзина хранит все выбранные пользователем пиццы.
+orders Order[]
+Тип: Один-ко-многим
+Описание: Одна корзина может быть использована для создания множества заказов.
+Реализация: В Cart определено orders Order[], а в Order — cartId Int и cart Cart @relation(fields: [cartId], references: [id]).
+Контекст: После оформления заказа корзина может сохраняться для истории или повторных заказов.
+6. Модель CartItem (Элемент корзины)
+Связи:
+pizza Pizza
+Тип: Многие-ко-одному
+Описание: Много элементов корзины могут ссылаться на одну пиццу.
+Реализация: В CartItem определено pizzaId Int и pizza Pizza @relation(fields: [pizzaId], references: [id]), а в Pizza — cartItems CartItem[].
+Контекст: Одна пицца (например, "Пепперони 30 см") может быть добавлена в корзину разными пользователями.
+cart Cart
+Тип: Многие-ко-одному
+Описание: Много элементов корзины принадлежат одной корзине.
+Реализация: В CartItem определено cartId Int и cart Cart @relation(fields: [cartId], references: [id]), а в Cart — items CartItem[].
+Контекст: Все элементы корзины связаны с конкретной корзиной пользователя.
+user User
+Тип: Многие-ко-одному
+Описание: Много элементов корзины принадлежат одному пользователю.
+Реализация: В CartItem определено userId Int и user User @relation(fields: [userId], references: [id]), а в User — cartItems CartItem[].
+Контекст: Связь напрямую указывает, какому пользователю принадлежит элемент.
+ingredients Ingredient[]
+Тип: Многие-ко-многим
+Описание: Один элемент корзины может включать много ингредиентов, и один ингредиент может быть в разных элементах.
+Реализация: В CartItem определено ingredients Ingredient[], а в Ingredient — cartItems CartItem[]. Связь через промежуточную таблицу.
+Контекст: Пользователь может добавить к пицце дополнительные ингредиенты (например, сыр или оливки).
+7. Модель Order (Заказ)
+Связи:
+user User
+Тип: Многие-ко-одному
+Описание: Много заказов могут принадлежать одному пользователю.
+Реализация: В Order определено userId Int и user User @relation(fields: [userId], references: [id]), а в User — orders Order[].
+Контекст: Пользователь может сделать несколько заказов.
+cart Cart
+Тип: Многие-ко-одному
+Описание: Много заказов могут быть связаны с одной корзиной.
+Реализация: В Order определено cartId Int и cart Cart @relation(fields: [cartId], references: [id]), а в Cart — orders Order[].
+Контекст: Заказ создаётся на основе содержимого корзины.
+8. Модель VerificationCode (Код верификации)
+Связи:
+user User
+Тип: Один-к-одному
+Описание: Один код верификации принадлежит одному пользователю.
+Реализация: В VerificationCode определено userId Int @unique и user User @relation(fields: [userId], references: [id], onDelete: Cascade), а в User — verification VerificationCode?. Уникальность userId обеспечивает связь один-к-одному.
+Контекст: Код используется для верификации телефона пользователя и удаляется, если пользователь удалён (onDelete: Cascade).
+Итоговые типы связей
+Один-к-одному:
+User ↔ Cart
+User ↔ VerificationCode
+Один-ко-многим:
+User → Order
+User → CartItem
+Product → Pizza
+Pizza → CartItem
+Cart → CartItem
+Cart → Order
+Многие-ко-одному:
+Pizza → Product
+CartItem → Pizza
+CartItem → Cart
+CartItem → User
+Order → User
+Order → Cart
+Многие-ко-многим:
+Pizza ↔ Ingredient
+Ingredient ↔ CartItem
+Пример в контексте
+Пользователь (User) добавляет пиццу (Pizza) с ингредиентами (Ingredient) в корзину (Cart).
+Создаётся CartItem с ссылками на pizzaId, cartId, userId и списком ingredients.
+Пользователь оформляет заказ (Order).
+Order ссылается на cartId и userId, фиксируя содержимое корзины.
+Если нужно больше примеров или уточнений, например, SQL-запросы для связей, дайте знать!
+
+ */
