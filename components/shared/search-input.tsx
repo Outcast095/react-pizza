@@ -10,6 +10,7 @@ export const SearchInput = () => {
     const [focused, setFocused] = React.useState(false)
     const ref = React.useRef<HTMLInputElement>(null);
 
+
     useClickAway(ref, () => {
         setFocused(false)
     })
