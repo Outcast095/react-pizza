@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 // Импортируем хук useClickAway из библиотеки react-use
 // Он позволяет отслеживать клики вне указанного элемента
 import {useClickAway, useDebounce} from "react-use";
@@ -28,7 +28,7 @@ export const SearchInput = () => {
 
     // Создаем ref для привязки к элементу input (или его контейнеру)
     // Используется для отслеживания кликов вне этого элемента
-    const ref = React.useRef<HTMLInputElement>(null);
+    const ref = useRef<HTMLInputElement>(null);
 
 
     // Используем хук useClickAway
